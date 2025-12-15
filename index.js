@@ -9,6 +9,9 @@ const passport = require('passport');
 dotenv.config();
 
 const app = express();
+// Trust proxy (Render, Heroku, etc.)
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 5000;
 
 const session = require('express-session');
