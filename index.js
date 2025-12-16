@@ -18,7 +18,10 @@ const session = require('express-session');
 require('./config/passport')(passport);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:5173', 'https://taptoconnect.netlify.app'],
+    credentials: true
+}));
 app.use(express.json());
 
 // Session config

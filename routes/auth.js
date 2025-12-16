@@ -13,7 +13,7 @@ router.get(
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
         // Redirect to frontend dashboard
-        res.redirect('http://localhost:5173/feed');
+        res.redirect('https://taptoconnect.netlify.app/feed');
     }
 );
 
@@ -24,7 +24,7 @@ router.get('/logout', (req, res, next) => {
         if (err) {
             return next(err);
         }
-        res.redirect('http://localhost:5173/');
+        res.redirect('https://taptoconnect.netlify.app/');
     });
 });
 
