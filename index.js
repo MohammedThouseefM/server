@@ -48,7 +48,7 @@ const connectDB = async () => {
         await sequelize.authenticate();
         console.log('Database connected...');
         // Sync models
-        await sequelize.sync(); // Removed { alter: true } to prevent "Too many keys" error
+        await sequelize.sync(); // Schema updated, disabled alter
         console.log('Models synced...');
     } catch (err) {
         console.error('Database connection error:', err);

@@ -9,8 +9,8 @@ const User = sequelize.define('User', {
     },
     googleId: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
+        allowNull: true, // Changed to true for email/password users
+        // unique: true, // Temporarily removed to fix migration error
     },
     displayName: {
         type: DataTypes.STRING,
@@ -19,6 +19,11 @@ const User = sequelize.define('User', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
+        // unique: true, // Ensure email is unique (Application level check for now)
+    },
+    password: { // Add password field
+        type: DataTypes.STRING,
+        allowNull: true, // Nullable for Google auth users
     },
     avatar: {
         type: DataTypes.STRING,
