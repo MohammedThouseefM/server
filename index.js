@@ -27,6 +27,12 @@ app.use(
         secret: process.env.SESSION_SECRET || 'secret',
         resave: false,
         saveUninitialized: false,
+        proxy: true, // Required for Heroku/Render to set secure cookies
+        cookie: {
+            secure: true, // Requires HTTPS (provided by Render)
+            sameSite: 'none', // Required for cross-site cookie usage
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        }
     })
 );
 
