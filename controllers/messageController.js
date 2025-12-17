@@ -1,6 +1,57 @@
 const { Message, User } = require('../models');
 const { Op } = require('sequelize');
 
+// @desc    Get all conversations (users chatted with)
+// @route   GET /api/messages/conversations
+exports.getConversationsList = async (req, res) => {
+    const currentUserId = req.user.id;
+
+    try {
+        // Find all messages where current user is sender OR receiver
+        const messages = await Message.findAll({
+            where: {
+                [Op.or]: [
+                    { senderId: currentUserId },
+                    { receiverId: currentUserId },
+                ],
+            },
+            order: [['createdAt', 'DESC']],
+            include: [
+                { model: User, as: 'Sender', attributes: ['id', 'displayName', 'avatar'] },
+                { model: User, as: 'Receiver', attributes: ['id', 'displayName', 'avatar'] },
+            ],
+        });
+
+        const conversationsMap = new Map();
+
+        messages.forEach(msg => {
+            const otherUser = msg.senderId === currentUserId ? msg.Receiver : msg.Sender;
+
+            // Should not happen if data integrity is good, but safety check
+            if (!otherUser) return;
+
+            // Since we ordered by DESC, the first time we see a user, it's the latest message
+            if (!conversationsMap.has(otherUser.id)) {
+                conversationsMap.set(otherUser.id, {
+                    user: otherUser,
+                    lastMessage: {
+                        content: msg.content,
+                        createdAt: msg.createdAt,
+                        senderId: msg.senderId
+                    }
+                });
+            }
+        });
+
+        const conversations = Array.from(conversationsMap.values());
+
+        res.json(conversations);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 // @desc    Get conversation with a specific user
 // @route   GET /api/messages/:userId
 exports.getConversation = async (req, res) => {

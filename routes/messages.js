@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getConversation, sendMessage } = require('../controllers/messageController');
+const { getConversation, sendMessage, getConversationsList } = require('../controllers/messageController');
 
 const { protect } = require('../middleware/authMiddleware');
 
+router.get('/conversations', protect, getConversationsList);
 router.get('/:userId', protect, getConversation);
 router.post('/:userId', protect, sendMessage);
 
