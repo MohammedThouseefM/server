@@ -3,6 +3,7 @@ const Post = require('./Post');
 const Message = require('./Message');
 const Like = require('./Like');
 const Comment = require('./Comment');
+const SearchHistory = require('./SearchHistory');
 
 const Notification = require('./Notification');
 
@@ -34,6 +35,10 @@ User.hasMany(Notification, { foreignKey: 'userId', as: 'Notifications' });
 Notification.belongsTo(User, { foreignKey: 'userId', as: 'User' });
 Notification.belongsTo(User, { foreignKey: 'actorId', as: 'Actor' });
 
+// User - SearchHistory Associations
+User.hasMany(SearchHistory, { foreignKey: 'userId', as: 'SearchHistory' });
+SearchHistory.belongsTo(User, { foreignKey: 'userId' });
+
 module.exports = {
     User,
     Post,
@@ -41,4 +46,5 @@ module.exports = {
     Like,
     Comment,
     Notification,
+    SearchHistory,
 };

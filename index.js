@@ -66,6 +66,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/search', require('./routes/search')); // Search Routes
 app.use('/api/ai', require('./routes/ai'));
 
 app.get('/', (req, res) => {
