@@ -42,6 +42,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+const uploadRoutes = require('./routes/upload');
+app.use('/api/upload', uploadRoutes);
+
 // Database Connection
 const connectDB = async () => {
     try {
