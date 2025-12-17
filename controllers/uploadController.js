@@ -15,6 +15,17 @@ const uploadImage = async (req, res) => {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
+        // Check for Missing Credentials
+        if (!process.env.CLOUDINARY_CLOUD_NAME ||
+            !process.env.CLOUDINARY_API_KEY ||
+            !process.env.CLOUDINARY_API_SECRET) {
+            console.error('Missing Cloudinary Credentials');
+            if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+            return res.status(500).json({
+                message: 'Server Configuration Error: Missing Cloudinary Credentials. Please check .env file.'
+            });
+        }
+
         // Upload to Cloudinary
         const result = await cloudinary.uploader.upload(req.file.path, {
             folder: 'tap_to_chat_posts',
