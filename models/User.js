@@ -12,6 +12,14 @@ const User = sequelize.define('User', {
         allowNull: true, // Changed to true for email/password users
         // unique: true, // Temporarily removed to fix migration error
     },
+    role: {
+        type: DataTypes.ENUM('user', 'admin'),
+        defaultValue: 'user',
+    },
+    isSuspended: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
     displayName: {
         type: DataTypes.STRING,
         allowNull: false,

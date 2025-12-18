@@ -68,6 +68,7 @@ app.use('/api/messages', require('./routes/messages'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/search', require('./routes/search')); // Search Routes
 app.use('/api/ai', require('./routes/ai'));
+app.use('/api/admin', require('./routes/adminRoutes')); // Admin Routes
 
 app.get('/', (req, res) => {
     res.send('API is running...');

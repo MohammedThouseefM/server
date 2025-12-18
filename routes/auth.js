@@ -52,6 +52,10 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({ where: { email } });
 
         if (user && (await bcrypt.compare(password, user.password))) {
+            if (user.isSuspended) {
+                return res.status(403).json({ message: 'Your account has been suspended. Contact admin.' });
+            }
+
             res.json({
                 id: user.id,
                 displayName: user.displayName,
@@ -78,6 +82,9 @@ router.get(
     '/google/callback',
     passport.authenticate('google', { session: false, failureRedirect: 'https://taptoconnect.netlify.app/login' }),
     (req, res) => {
+        if (req.user.isSuspended) {
+            return res.redirect('https://taptoconnect.netlify.app/login?error=suspended');
+        }
         const token = generateToken(req.user.id);
         // Redirect to frontend with token
         res.redirect(`https://taptoconnect.netlify.app/feed?token=${token}`);
