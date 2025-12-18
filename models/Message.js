@@ -11,6 +11,10 @@ const Message = sequelize.define('Message', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
+    isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
 });
 
 module.exports = Message;

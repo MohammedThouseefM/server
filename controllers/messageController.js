@@ -3,6 +3,8 @@ const { Op } = require('sequelize');
 
 // @desc    Get all conversations (users chatted with)
 // @route   GET /api/messages/conversations
+// @desc    Get all conversations (users chatted with)
+// @route   GET /api/messages/conversations
 exports.getConversationsList = async (req, res) => {
     const currentUserId = req.user.id;
 
@@ -30,22 +32,53 @@ exports.getConversationsList = async (req, res) => {
             // Should not happen if data integrity is good, but safety check
             if (!otherUser) return;
 
-            // Since we ordered by DESC, the first time we see a user, it's the latest message
             if (!conversationsMap.has(otherUser.id)) {
                 conversationsMap.set(otherUser.id, {
                     user: otherUser,
                     lastMessage: {
                         content: msg.content,
                         createdAt: msg.createdAt,
-                        senderId: msg.senderId
-                    }
+                        senderId: msg.senderId,
+                        isRead: msg.isRead
+                    },
+                    unreadCount: 0
                 });
+            }
+
+            // Calculate unread count (if I am the receiver and message is not read)
+            if (msg.receiverId === currentUserId && !msg.isRead) {
+                const convo = conversationsMap.get(otherUser.id);
+                convo.unreadCount += 1;
             }
         });
 
         const conversations = Array.from(conversationsMap.values());
 
         res.json(conversations);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+// @desc    Mark messages as read
+// @route   PUT /api/messages/read/:userId
+exports.markAsRead = async (req, res) => {
+    const { userId } = req.params; // The OTHER user info (sender of messages)
+    const currentUserId = req.user.id;
+
+    try {
+        await Message.update(
+            { isRead: true },
+            {
+                where: {
+                    senderId: userId,
+                    receiverId: currentUserId,
+                    isRead: false
+                }
+            }
+        );
+        res.json({ success: true });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
