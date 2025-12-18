@@ -1,4 +1,4 @@
-const { User, Post, SearchHistory, Sequelize } = require('../models');
+const { User, Post, Message, SearchHistory, Sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 // @desc    Search users and posts
@@ -36,7 +36,29 @@ exports.searchAll = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        // 3. Save to History (Async - fire and forget mostly, but we define distinct handling)
+        // 3. Search Messages (content)
+        // Note: In a real app, strict access control is needed here (only messages user is part of).
+        // Assuming for this "Search Page" context, we searching GLOBAL messages (like a public forum) 
+        // OR we need to filter by req.user.id if these are private messages.
+        // Given existing context, let's assume we want to search messages relevant to the user (sent or received).
+
+        const messages = await Message.findAll({
+            where: {
+                content: { [Op.like]: `%${query}%` },
+                [Op.or]: [
+                    { senderId: req.user.id },
+                    { receiverId: req.user.id }
+                ]
+            },
+            include: [
+                { model: User, as: 'sender', attributes: ['id', 'displayName', 'avatar'] },
+                { model: User, as: 'receiver', attributes: ['id', 'displayName', 'avatar'] }
+            ],
+            limit: 5,
+            order: [['createdAt', 'DESC']]
+        });
+
+        // 4. Save to History
         // Check if identical recent query exists to avoid spam?
         // For simplicity: Add it.
         const existingHistory = await SearchHistory.findOne({
@@ -56,7 +78,7 @@ exports.searchAll = async (req, res) => {
             });
         }
 
-        res.json({ users, posts });
+        res.json({ users, posts, messages });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
