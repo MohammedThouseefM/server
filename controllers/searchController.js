@@ -7,17 +7,17 @@ exports.searchAll = async (req, res) => {
     try {
         const { q } = req.query;
         if (!q || q.trim() === '') {
-            return res.json({ users: [], posts: [] });
+            return res.json({ users: [], posts: [], messages: [] });
         }
 
-        const query = q.trim();
+        const query = q.trim().toLowerCase();
 
         // 1. Search Users (displayName or email)
         const users = await User.findAll({
             where: {
                 [Op.or]: [
-                    { displayName: { [Op.like]: `%${query}%` } },
-                    { email: { [Op.like]: `%${query}%` } }
+                    Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('displayName')), 'LIKE', `%${query}%`),
+                    Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('email')), 'LIKE', `%${query}%`)
                 ]
             },
             attributes: ['id', 'displayName', 'avatar'],
@@ -26,9 +26,7 @@ exports.searchAll = async (req, res) => {
 
         // 2. Search Posts (content)
         const posts = await Post.findAll({
-            where: {
-                content: { [Op.like]: `%${query}%` }
-            },
+            where: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('content')), 'LIKE', `%${query}%`),
             include: [
                 { model: User, attributes: ['id', 'displayName', 'avatar'] }
             ],
@@ -44,10 +42,14 @@ exports.searchAll = async (req, res) => {
 
         const messages = await Message.findAll({
             where: {
-                content: { [Op.like]: `%${query}%` },
-                [Op.or]: [
-                    { senderId: req.user.id },
-                    { receiverId: req.user.id }
+                [Op.and]: [
+                    Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('content')), 'LIKE', `%${query}%`),
+                    {
+                        [Op.or]: [
+                            { senderId: req.user.id },
+                            { receiverId: req.user.id }
+                        ]
+                    }
                 ]
             },
             include: [
