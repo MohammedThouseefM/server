@@ -4,7 +4,6 @@ const {
     adminLogin,
     getDashboardStats,
     getAllUsers,
-    getAllUsers,
     deleteUser,
     getSystemActivity,
     deletePost,
