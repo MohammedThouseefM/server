@@ -53,8 +53,8 @@ exports.searchAll = async (req, res) => {
                 ]
             },
             include: [
-                { model: User, as: 'sender', attributes: ['id', 'displayName', 'avatar'] },
-                { model: User, as: 'receiver', attributes: ['id', 'displayName', 'avatar'] }
+                { model: User, as: 'Sender', attributes: ['id', 'displayName', 'avatar'] },
+                { model: User, as: 'Receiver', attributes: ['id', 'displayName', 'avatar'] }
             ],
             limit: 5,
             order: [['createdAt', 'DESC']]
